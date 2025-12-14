@@ -3,26 +3,32 @@
 const validateItem = (req, res, next) => {
   const { name, sku, quantity, price } = req.body;
 
-  if (!name || !sku || quantity === undefined || !price) {
+  if (!name || !sku || quantity === undefined || price === undefined) {
     return res.status(400).json({
       success: false,
       message: 'Missing required fields: name, sku, quantity, price'
     });
   }
 
-  if (typeof quantity !== 'number' || quantity < 0) {
+  const parsedQuantity = Number(quantity);
+  const parsedPrice = Number(price);
+
+  if (!Number.isInteger(parsedQuantity) || parsedQuantity < 0) {
     return res.status(400).json({
       success: false,
-      message: 'Quantity must be a non-negative number'
+      message: 'Quantity must be a non-negative integer'
     });
   }
 
-  if (typeof price !== 'number' || price < 0) {
+  if (isNaN(parsedPrice) || parsedPrice < 0) {
     return res.status(400).json({
       success: false,
       message: 'Price must be a non-negative number'
     });
   }
+
+  req.body.quantity = parsedQuantity;
+  req.body.price = parsedPrice;
 
   next();
 };
